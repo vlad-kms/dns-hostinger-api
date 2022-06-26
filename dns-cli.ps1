@@ -16,7 +16,8 @@ Param (
     [string] $Token=''
 )
 
-. "C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1"
+#. "C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1"
+. "D:\tools\PSModules\avvClasses\classes\classCFG.ps1"
 
 function Param2Splah {
     $result = @{
@@ -99,9 +100,3 @@ $result = switch ($Action) {
 echo $result
 
 exit 0
-
-# все домены
-$c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$token";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/";$arrC=ConvertFrom-Json $c.content;$arrC|Sort-Object -Property name|ft
-# все записи домена
-$c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$token";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$domain/records";$arrC=ConvertFrom-Json $c.content;$arrC|Sort-Object -Property name|ft
-
