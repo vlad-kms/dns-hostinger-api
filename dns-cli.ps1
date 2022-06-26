@@ -5,10 +5,7 @@ Param (
     [string] $Action='domainList',
     [ValidateSet('selectel', 'mydns')]
     $Provider='selectel',
-    [Parameter(ParameterSetName='GroupDomain')]
     [string] $Domain='mrovo.ru',
-    [Parameter(ParameterSetName='GroupIdDomain')]
-    [string] $IdDomain,
     [Parameter(ParameterSetName='GroupUser')]
     [string] $User,
     [Parameter(ParameterSetName='GroupUser')]
@@ -29,16 +26,6 @@ function Param2Splah {
         Debug = $Debug;
     }
     return $result
-}
-
-function Get-DomainParam{
-    Param (
-        [Parameter(ValueFromPipeline=$True, Position=0)]
-        [hashtable]$params
-    )
-    if ($params.Contains('IdDomain')) {return $params['IdDomain']}
-    if ($params.Contains('Domain')) {return $params['Domain']}
-    return ""
 }
 
 function Get-DomainsList {
