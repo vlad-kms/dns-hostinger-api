@@ -11,7 +11,7 @@ Param (
     [Parameter(ParameterSetName='GroupUser')]
     [string] $Password,
     [Parameter(ParameterSetName='GroupToken')]
-    [string] $Token= '<KEY API TELEGRAM>0'
+    [string] $Token=''
 )
 
 function Param2Splah {
