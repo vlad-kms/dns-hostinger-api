@@ -5,7 +5,9 @@ Param (
     [string] $Action='domainList',
     [ValidateSet('selectel', 'mydns')]
     $Provider='selectel',
+    [Parameter(ParameterSetName='GroupDomain')]
     [string] $Domain='mrovo.ru',
+    [Parameter(ParameterSetName='GroupIdDomain')]
     [string] $IdDomain,
     [Parameter(ParameterSetName='GroupUser')]
     [string] $User,
@@ -27,6 +29,16 @@ function Param2Splah {
         Debug = $Debug;
     }
     return $result
+}
+
+function Get-DomainParam{
+    Param (
+        [Parameter(ValueFromPipeline=$True, Position=0)]
+        [hashtable]$params
+    )
+    if ($params.Contains('IdDomain')) {return $params['IdDomain']}
+    if ($params.Contains('Domain')) {return $params['Domain']}
+    return ""
 }
 
 function Get-DomainsList {
@@ -55,9 +67,11 @@ function Get-RecordsList {
         [hashtable]$params
     )
     try {
+        #$dompar=Get-DomainParam -params $params
         switch ($params.Provider) {
             selectel {
-                $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$($params.domain)/records";
+                #$c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$($dompar)/records";
+                $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$($domain)/records";
                 $arrC=ConvertFrom-Json $c.content;
                 $result = ($arrC|Sort-Object -Property name|ft)
             }
@@ -69,6 +83,8 @@ function Get-RecordsList {
     return $result
 }
 
+$PSBoundParameters
+echo "================================================"
 $Debug = ($PSBoundParameters.Debug -eq $True)
 $global:par=Param2Splah
 if ($PSBoundParameters.Debug) {
@@ -85,11 +101,11 @@ $result = switch ($Action) {
 }
 
 echo $result
+
 exit 0
 
 # все домены
 $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$token";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/";$arrC=ConvertFrom-Json $c.content;$arrC|Sort-Object -Property name|ft
-
 # все записи домена
 $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$token";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$domain/records";$arrC=ConvertFrom-Json $c.content;$arrC|Sort-Object -Property name|ft
 
