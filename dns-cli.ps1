@@ -97,6 +97,6 @@ $result = switch ($Action) {
     default {Write-Host "Неверно указано действие" -ForegroundColor Red}
 }
 
-echo $result
+$result
 
 exit 0
