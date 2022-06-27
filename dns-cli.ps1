@@ -3,11 +3,12 @@
 [CmdletBinding(DefaultParameterSetName='GroupToken')]
 Param (
     [Parameter(ValueFromPipeline=$True, Position=0)]
-    [ValidateSet('domainsList', 'recordsList')]
+    [ValidateSet('domainsList', 'recordsList', 'recordAdd', 'test')]
     [string] $Action='domainList',
     [ValidateSet('selectel', 'mydns')]
     $Provider='selectel',
     [string] $Domain='mrovo.ru',
+    [string] $Record='',
     [Parameter(ParameterSetName='GroupUser')]
     [string] $User,
     [Parameter(ParameterSetName='GroupUser')]
@@ -18,9 +19,11 @@ Param (
 
 #. "C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1"
 . "D:\tools\PSModules\avvClasses\classes\classCFG.ps1"
+<# классы для работы с DNS #>
+. ".\classes\avvDNSBase.ps1"
 
 function Param2Splah {
-    $result = @{
+    $result = [ordered]@{
         Action = $Action;
         Provider = $Provider;
         Domain = $Domain;
@@ -75,28 +78,48 @@ function Get-RecordsList {
     return $result
 }
 
+$Debug = ($PSBoundParameters.Debug -eq $True)
+
+echo "================================================"
 #$PSBoundParameters
 $ps = Split-Path $psCommandPath -Parent
 $fileIni="$($psCommandPath).ini"
-$global:ini=[IniCFG]::new($fileIni)
 
-echo "================================================"
-$Debug = ($PSBoundParameters.Debug -eq $True)
-$global:par=Param2Splah
-if ($Debug) {
-    $par
-    $ini
+if ($Debug)
+{
+    $global:ini=[IniCFG]::new($fileIni)
+    $global:par=Param2Splah
+    $global:dnsWorker=[avvDNSBase]::new($par)
+} else
+{
+    $ini=[IniCFG]::new($fileIni)
+    $par=Param2Splah
+    $dnsWorker=[avvDNSBase]::new($par)
 }
-#$par
-#@PSBoundParameters
-#$PSBoundParameters
+if ($Debug) {
+    echo "Текущий каталог: $($ps)"
+    echo "par:"
+    $par
+    echo "ini:"
+    $ini
+    echo "dnsWorker:"
+    $dnsWorker
+}
 
 $result = switch ($Action) {
     'domainsList' {Get-DomainsList $par;}
     'recordsList' {Get-RecordsList $par;}
-    default {Write-Host "Неверно указано действие" -ForegroundColor Red}
+    'recordAdd' {echo $($par);}
+    default {Write-Host "Invalid action specified" -ForegroundColor Red}
 }
 
 $result
 
+echo "================================================"
 exit 0
+
+<#
+Invoke-WebRequest -uri "https://api.selectel.ru/domains/v1/791376/records/11357134" -Body (@{"content"="192.168.11.1";"name"="qw1.mrovo.ru";"ttl"="600";"type"="A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"} -Method put
+Invoke-WebRequest "https://api.selectel.ru/domains/v1/791376/records/11357134" -Body (@{"content"="192.168.11.1";"name"="qw1.mrovo.ru";"ttl"="600";"type"="A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"}
+Invoke-WebRequest -uri https://api.selectel.ru/domains/v1/791376/records/11357134 -Body (@{"content": "192.168.11.1", "name": "qw1.mrovo.ru", "ttl": 600, "type": "A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"} -ContentType "application/json"
+#>
