@@ -1,9 +1,18 @@
 class avvDNSBase{
     [string]hidden $provider='_none_'
     [hashtable]$params=[ordered]@{}
+    [array]$classes=@()
 
     [string]$pwd=(Split-Path $psCommandPath -Parent)
 
+
+    avvDNSBase([string]$provider)
+    {
+        $this.provider=$provider
+        $this.params=[ordered]@{
+            provider=$provider
+        }
+    }
 
     avvDNSBase([hashtable]$data)
     {
@@ -51,12 +60,19 @@ class avvDNSBase{
             msgException=""
             result=@()
         }
-        $classNameProvider='avvDNS' + $this.ToTitleCase($this.provider) + ""
+        #$result.cp=$psCommandPath #--------------------------------------------------------------
+        $classNameProvider='avvDNS' + $this.ToTitleCase($this.provider)
         if ($this.provider.ToLower() -ne '_none_')
         {
             try
             {
+                Import-Module ".\$($classNameProvider).ps1"
+                #Import-Module "./avvDNSSelectel.ps1"
+                #$classProvider=New-Object -TypeName $classNameProvider -ArgumentList $this.provider;
+                $classProvider=New-Object -TypeName $classNameProvider
 
+                ############# delete
+                $result.qwerty=$classProvider
             }
             catch
             {
@@ -74,20 +90,45 @@ class avvDNSBase{
         return $result
     }
 
-    [String] ToTitleCase([string]$value, [bool]$isCulture=$false)
+    [String] ToTitleCase([string]$value)
     {
-        if ($isCulture)
-        { return ((Get-Culture).TextInfo).ToTitleCase($value) }
-        else
-        {
-            return ""
-        }
+        return $this.ToTitleCase($value, $false)
     }
 
+    [String] ToTitleCase([string]$value, [bool]$isCulture)
+    {
+        $result = ""
+        if ($isCulture)
+        {
+            $result=((Get-Culture).TextInfo).ToTitleCase($value)
+        }
+        else
+        {
+            $ar=$value.Split(" ").ForEach({if ($_.Length) {$_.Substring(0,1).ToUpper()+$_.Substring(1,($_.Length-1))} else {$_}})
+            $result=[string]::Join(" ", $ar)
+        }
+        return $result
+    }
+
+    [String] ToTitleCase([array]$value, [bool]$isCulture)
+    {
+        $result=""
+        $arr=@()
+        $value.foreach(
+            {
+                $arr += if ($_) {$this.ToTitleCase($_, $isCulture)} else {$_}
+            }
+        )
+        $result=[string]::Join("", $arr)
+        return $result
+    }
+
+    <#
     [Void]InitDNSBase()
     {
 
     }
+     #>
 
 }
 <#

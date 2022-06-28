@@ -1,0 +1,5 @@
+class avvDNSSelectel
+{
+    $test='wqe'
+
+}

@@ -122,4 +122,7 @@ exit 0
 Invoke-WebRequest -uri "https://api.selectel.ru/domains/v1/791376/records/11357134" -Body (@{"content"="192.168.11.1";"name"="qw1.mrovo.ru";"ttl"="600";"type"="A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"} -Method put
 Invoke-WebRequest "https://api.selectel.ru/domains/v1/791376/records/11357134" -Body (@{"content"="192.168.11.1";"name"="qw1.mrovo.ru";"ttl"="600";"type"="A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"}
 Invoke-WebRequest -uri https://api.selectel.ru/domains/v1/791376/records/11357134 -Body (@{"content": "192.168.11.1", "name": "qw1.mrovo.ru", "ttl": 600, "type": "A" }| ConvertTo-Json) -Headers @{"X-Token"="<KEY API TELEGRAM>"; "Content-Type"="application/json"} -ContentType "application/json"
+
+$t='avvDNSBase';$c1=New-Object -TypeName $($t) -ArgumentList 'selectel';$c1
+
 #>
