@@ -9,6 +9,8 @@ class avvDNSSelectel : avvDNSProvider
     avvDNSSelectel() : base() {
         $this.Methods.Add('GetDomains', '')
         $this.Methods.Add('GetRecords', '')
+        $this.Methods.Add('gd', 'GetDomains')
+        $this.Methods.Add('gr', 'GetRecords')
     }
 
     static [Hashtable] GetDomains([Hashtable]$Arguments)
