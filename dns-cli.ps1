@@ -26,7 +26,6 @@ function Param2Splah {
         action = $Action;
         provider = $Provider;
         domain = $Domain;
-        idDomain = $IdDomain
         token = $ini.GetString('dns_cli', 'Token');
         user = $User;
         password = $Password;
