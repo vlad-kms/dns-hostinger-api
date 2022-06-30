@@ -37,7 +37,7 @@ function Param2Splah {
 
 $Debug = ($PSBoundParameters.Debug -eq $True)
 
-Write-Output "================================================"
+Write-Host "================================================"
 #$PSBoundParameters
 $ps = Split-Path $psCommandPath -Parent
 $fileIni="$($psCommandPath).ini"
@@ -54,16 +54,16 @@ if ($Debug)
     $dnsWorker=[avvDNSBase]::new($par)
 }
 if ($Debug) {
-    Write-Output "Текущий каталог: $($ps)"
-    Write-Output "par: ---------------------------"
-    $par
-    Write-Output "ini: ---------------------------"
-    $ini
-    Write-Output "dnsWorker: ---------------------------"
-    $dnsWorker
+    Write-Host "Текущий каталог: $($ps)"
+    Write-Host "par: ---------------------------"
+    Write-Host ($par | Format-Table | Out-String)
+    Write-Host "ini: ---------------------------"
+    Write-Host ($ini | Format-Table | Out-String)
+    Write-Host "dnsWorker: ---------------------------"
+    Write-Host ($dnsWorker | Format-Table | Out-String)
 }
 
-Write-Output "================================================"
+Write-Host "================================================"
 
 if ($Action -ne '_test_')
 {
@@ -74,8 +74,6 @@ else
     $par.ExtParams
 }
 $result
-
-Write-Output "================================================"
 
 exit 0
 
