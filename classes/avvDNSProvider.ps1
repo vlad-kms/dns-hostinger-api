@@ -21,7 +21,7 @@ class avvDNSProvider
         if ($this.Methods.Contains($Method))
         {
             $res=$this.Methods[$Method]
-            if (-not $res) { $res=$Method }
+            if (!($res)) { $res=$Method }
         }
         return $res
     }
