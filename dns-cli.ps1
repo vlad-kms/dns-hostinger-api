@@ -78,7 +78,7 @@ function Get-RecordsList {
 
 $Debug = ($PSBoundParameters.Debug -eq $True)
 
-echo "================================================"
+Write-Output "================================================"
 #$PSBoundParameters
 $ps = Split-Path $psCommandPath -Parent
 $fileIni="$($psCommandPath).ini"
@@ -95,29 +95,23 @@ if ($Debug)
     $dnsWorker=[avvDNSBase]::new($par)
 }
 if ($Debug) {
-    echo "Текущий каталог: $($ps)"
-    echo "par: ---------------------------"
+    Write-Output "Текущий каталог: $($ps)"
+    Write-Output "par: ---------------------------"
     $par
-    echo "ini: ---------------------------"
+    Write-Output "ini: ---------------------------"
     $ini
-    echo "dnsWorker: ---------------------------"
+    Write-Output "dnsWorker: ---------------------------"
     $dnsWorker
 }
-<#
-$result = switch ($Action) {
-    'domainsList' {Get-DomainsList $par;}
-    'recordsList' {Get-RecordsList $par;}
-    'recordAdd' {echo $($par);}
-    default {Write-Host "Invalid action specified" -ForegroundColor Red}
-}
-#>
-echo "================================================"
+
+Write-Output "================================================"
 
 $result = $dnsWorker.MethodDispath($Action)
 
 $result
 
-echo "================================================"
+Write-Output "================================================"
+
 exit 0
 
 <#

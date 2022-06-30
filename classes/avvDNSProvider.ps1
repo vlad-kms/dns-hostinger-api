@@ -25,28 +25,4 @@ class avvDNSProvider
         }
         return $res
     }
-<##############################
-    [Array] MethodDispath([String]$Method, [Hashtable]$Arguments)
-    {
-        $res=@()
-        if ($this.MethodIsSupported($Method))
-        {
-            $MethodImpl=$this.Methods[$Method]
-            $Command='$this.'+"$($MethodImpl)"+'($Arguments)'
-            $res=(Invoke-Expression -Command $Command)
-        }
-        return $res
-    }
-    [Hashtable] GetDomains([Hashtable]$Arguments)
-    {
-        $res=@{'args'=$Arguments}
-        return $res
-    }
-
-    [Hashtable] GetRecords([Hashtable]$Arguments)
-    {
-        $res=@{'args'=$Arguments}
-        return $res
-    }
-############################>
 }
