@@ -63,5 +63,4 @@ class avvDNSSelectel : avvDNSProvider
         }
         return $res
     }
-    #avvDNSSelectel
 }

@@ -309,20 +309,4 @@ class avvDNSBase{
         $result=[string]::Join("", $arr)
         return $result
     }
-
-    <#
-    [Void]InitDNSBase()
-    {
-
-    }
-     #>
-
 }
-<#
-    $t='avvDNSBase';$cs="[$($t)]::new('asas')";$cs;$c=Invoke-Expression $cs;$c
-    $t='avvDNSBase';$c1=New-Object -TypeName $($t) -ArgumentList @{'provider'='selectel';'token'='token1'};$c1
-
-
-
-
- #>
