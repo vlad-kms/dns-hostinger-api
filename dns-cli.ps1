@@ -3,8 +3,7 @@
 [CmdletBinding(DefaultParameterSetName='GroupToken')]
 Param (
     [Parameter(ValueFromPipeline=$True, Position=0)]
-    [ValidateSet('domainsList', 'recordsList', 'recordAdd', 'test')]
-    [string] $Action='domainList',
+    [string] $Action='getDomains',
     [ValidateSet('selectel', 'mydns')]
     $Provider='selectel',
     [string] $Domain='mrovo.ru',
@@ -24,14 +23,14 @@ Param (
 
 function Param2Splah {
     $result = [ordered]@{
-        Action = $Action;
-        Provider = $Provider;
-        Domain = $Domain;
-        IdDomain = $IdDomain
-        Token = $ini.GetString('dns_cli', 'Token');
-        User = $User;
-        Password = $Password;
-        Debug = $Debug;
+        action = $Action;
+        provider = $Provider;
+        domain = $Domain;
+        idDomain = $IdDomain
+        token = $ini.GetString('dns_cli', 'Token');
+        user = $User;
+        password = $Password;
+        debug = $Debug;
     }
     return $result
 }
@@ -42,7 +41,7 @@ function Get-DomainsList {
         [hashtable]$params
     )
     try {
-        switch ($params.Provider) {
+        switch ($params.provider) {
             selectel {
                 $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/";
                 $arrC=ConvertFrom-Json $c.content;
@@ -63,7 +62,7 @@ function Get-RecordsList {
     )
     try {
         #$dompar=Get-DomainParam -params $params
-        switch ($params.Provider) {
+        switch ($params.provider) {
             selectel {
                 #$c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$($dompar)/records";
                 $c=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($params.Token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/$($domain)/records";
@@ -98,20 +97,24 @@ if ($Debug)
 }
 if ($Debug) {
     echo "Текущий каталог: $($ps)"
-    echo "par:"
+    echo "par: ---------------------------"
     $par
-    echo "ini:"
+    echo "ini: ---------------------------"
     $ini
-    echo "dnsWorker:"
+    echo "dnsWorker: ---------------------------"
     $dnsWorker
 }
-
+<#
 $result = switch ($Action) {
     'domainsList' {Get-DomainsList $par;}
     'recordsList' {Get-RecordsList $par;}
     'recordAdd' {echo $($par);}
     default {Write-Host "Invalid action specified" -ForegroundColor Red}
 }
+#>
+echo "================================================"
+
+$result = $dnsWorker.MethodDispath($Action)
 
 $result
 
