@@ -9,28 +9,24 @@ class avvDNSMydns : avvDNSProvider
         'gd'='GetDomains'
         'gr'='GetRecords'
     }
+    [String]$BaseUri="https://api.selectel.ru/domains/v1"
 
     #static [Microsoft.PowerShell.Commands.WebResponseObject] Request([Hashtable]$Data)
-    static [Hashtable] Request([Hashtable]$Data)
+    [Hashtable] Request([Hashtable]$Data)
     {
-        $res=@{
-            'Error'=(New-Object PSObject)
-            'ErrorCode'=0
-            'ErrorMsg'=''
-        }
+        $res=@{}
         try
         {
-            $raw = Invoke-WebRequest @Data
-            $arrC=ConvertFrom-Json $raw.content;
+            $res=([avvDNSProvider]$this).Request($Data)
+            $arrC=ConvertFrom-Json $res.raw.content;
             $result = ($arrC|Sort-Object -Property name|Format-Table)
 
-            $res.add('raw', $raw)
             $res.add('result', $result)
-            if ($raw.StatusCode -ne 200)
+            if ($res.raw.StatusCode -ne 200)
             {
                 $res.ErrorCode=22 # StatusCode из ответа на http запроса <> 200
-                $res.ErrorMsg="Код ответа на запрос $($Data.Uri) равен $($raw.StatusCode)" # StatusCode из ответа на http запроса <> 200
-                throw $res.ErrorMsg
+                $res.ErrorMsg="Код ответа на запрос $($Data.Uri) равен $($res.raw.StatusCode)" # StatusCode из ответа на http запроса <> 200
+                #throw $res.ErrorMsg
             }
         }
         catch
@@ -42,22 +38,22 @@ class avvDNSMydns : avvDNSProvider
         return $res
     }
 
-    static [Hashtable] GetDomains([Hashtable]$Arguments)
+    [Hashtable] GetDomains([Hashtable]$Arguments)
     {
-        $res=[avvDNSMydns]::Request(@{
+        $res=$this.Request(@{
             'Method'='Get'
             'Headers'=@{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"}
-            'Uri'="https://api.selectel.ru/domains/v1/"
+            'Uri'="$($this.BaseUri)"
         })
         return $res
     }
 
-    static [Hashtable] GetRecords([Hashtable]$Arguments)
+    [Hashtable] GetRecords([Hashtable]$Arguments)
     {
-        $res=[avvDNSMydns]::Request(@{
+        $res=$this.Request(@{
             'Method'='Get'
             'Headers'=@{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"}
-            'Uri'="https://api.selectel.ru/domains/v1/$( $Arguments.domain )/records"
+            'Uri'="$($this.BaseUri)/$( $Arguments.domain )/records"
         })
         return $res
     }

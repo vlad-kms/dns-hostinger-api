@@ -32,6 +32,7 @@ function Param2Splah {
         debug = $Debug;
         extParams = $ExtParams;
     }
+    $result.extParams.token1c=$ini.GetString('dns_cli', 'Token1c');
     return $result
 }
 

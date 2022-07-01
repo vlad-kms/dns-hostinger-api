@@ -5,6 +5,7 @@ using module '.\avvDNSProvider.ps1'
 
 class avvDNSSelectel : avvDNSProvider
 {
+    [String]$BaseUri="https://api.selectel.ru/domains/v1"
 
     avvDNSSelectel() : base() {
         $this.Methods.Add('GetDomains', '')
@@ -13,14 +14,14 @@ class avvDNSSelectel : avvDNSProvider
         $this.Methods.Add('gr', 'GetRecords')
     }
 
-    static [Hashtable] GetDomains([Hashtable]$Arguments)
+    [Hashtable] GetDomains([Hashtable]$Arguments)
     {
         $res=@{
             'Error'=(New-Object PSObject)
             'ErrorCode'=0
         }
         try{
-            $raw=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"} "https://api.selectel.ru/domains/v1/";
+            $raw=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"} "$($this.BaseUri)";
             $arrC=ConvertFrom-Json $raw.content;
             $result = ($arrC|Sort-Object -Property name|Format-Table)
 
@@ -39,7 +40,7 @@ class avvDNSSelectel : avvDNSProvider
         return $res
     }
 
-    static [Hashtable] GetRecords([Hashtable]$Arguments)
+    [Hashtable] GetRecords([Hashtable]$Arguments)
     {
         $res=@{
             'Error'=(New-Object PSObject)
@@ -47,7 +48,7 @@ class avvDNSSelectel : avvDNSProvider
         }
         try
         {
-            $raw = Invoke-WebRequest -Method Get -Headers @{ 'X-Token' = "$( $Arguments.token )"; 'Content-Type' = 'application/json' } "https://api.selectel.ru/domains/v1/$( $Arguments.domain )/records";
+            $raw = Invoke-WebRequest -Method Get -Headers @{ 'X-Token' = "$( $Arguments.token )"; 'Content-Type' = 'application/json' } "$($this.BaseUri)/$($Arguments.domain)/records";
             $arrC = ConvertFrom-Json $raw.content;
             $result = ($arrC|Sort-Object -Property name|Format-Table)
 

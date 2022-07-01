@@ -6,32 +6,32 @@ using module '.\avvDNSProvider.ps1'
 class avvDNSClinic : avvDNSProvider
 {
     [Hashtable]hidden $Methods=@{
-        'help'='GetHelp'
+        #'help'='GetHelp'
         'version'='GetVersion'
-        'gr'='GetRecords'
+        'v'='GetVersion'
+        'companies'='GetCompanies'
+        'clinics'='GetClinics'
+        'doctors'='GetDoctors'
     }
+    [String]$BaseUri="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v1"
+    [String]$MethodREST='Get'
 
     #static [Microsoft.PowerShell.Commands.WebResponseObject] Request([Hashtable]$Data)
-    static [Hashtable] Request([Hashtable]$Data)
+    [Hashtable] Request([Hashtable]$Data)
     {
-        $res=@{
-            'Error'=(New-Object PSObject)
-            'ErrorCode'=0
-            'ErrorMsg'=''
-        }
+        $res=@{}
         try
         {
-            $raw = Invoke-WebRequest @Data
-            $arrC=ConvertFrom-Json $raw.content;
-            $result = ($arrC|Sort-Object -Property name|Format-Table)
+            $res=([avvDNSProvider]$this).Request($Data)
+            #$arrC=ConvertFrom-Json $res.raw.content;
+            $result = ($res.raw.Content)
 
-            $res.add('raw', $raw)
             $res.add('result', $result)
-            if ($raw.StatusCode -ne 200)
+            if ($res.raw.StatusCode -ne 200)
             {
                 $res.ErrorCode=22 # StatusCode из ответа на http запроса <> 200
-                $res.ErrorMsg="Код ответа на запрос $($Data.Uri) равен $($raw.StatusCode)" # StatusCode из ответа на http запроса <> 200
-                throw $res.ErrorMsg
+                $res.ErrorMsg="Код ответа на запрос $($Data.Uri) равен $($res.raw.StatusCode)" # StatusCode из ответа на http запроса <> 200
+                #throw $res.ErrorMsg
             }
         }
         catch
@@ -43,44 +43,99 @@ class avvDNSClinic : avvDNSProvider
         return $res
     }
 
-    static [Hashtable] GetHelp([Hashtable]$Arguments)
+    <#############################################################
+
+    #############################################################>
+    [Hashtable] GetCompanies([Hashtable]$Arguments)
     {
         #GET https://api.t.mrovo.ru/api/hs/er/v1/info
-        $res=[avvDNSClinic]::Request(@{
-            'Method'='Get'
-            'Uri'="https://dbg.alt.av-kms.ru/api_dng/hs/er/v1/help"
-        })
+        $data=@{
+            'Method'=$this.MethodREST
+            'Uri'="$($this.BaseUri)/companies"
+        }
+        if ($this.MethodREST.toUpper() -eq 'GET')
+        {
+            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
+        }
+        elseif ($this.MethodREST.toUpper() -eq 'POST')
+        {
+            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
+        }
+        else
+        {
+
+        }
+        $res=$this.Request($data)
+
         return $res
     }
 
-    static [Hashtable] GetVersion([Hashtable]$Arguments)
+    <#############################################################
+
+    #############################################################>
+    [Hashtable] GetClinics([Hashtable]$Arguments)
     {
         #GET https://api.t.mrovo.ru/api/hs/er/v1/info
-        $res=[avvDNSClinic]::Request(@{
-            'Method'='Post'
-            'Uri'="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v2/version"
+        $data=@{
+            'Method'=$this.MethodREST
+            'Uri'="$($this.BaseUri)/clinics"
+        }
+        if ($this.MethodREST.toUpper() -eq 'GET')
+        {
+            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
+        }
+        elseif ($this.MethodREST.toUpper() -eq 'POST')
+        {
+            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
+        }
+        else
+        {
+
+        }
+        $res=$this.Request($data)
+
+        return $res
+    }
+
+    <#############################################################
+
+    #############################################################>
+    [Hashtable] GetDoctors([Hashtable]$Arguments)
+    {
+        #GET https://api.t.mrovo.ru/api/hs/er/v1/info
+        $data=@{
+            'Method'=$this.MethodREST
+            'Uri'="$($this.BaseUri)/doctors"
+        }
+        if ($this.MethodREST.toUpper() -eq 'GET')
+        {
+            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
+        }
+        elseif ($this.MethodREST.toUpper() -eq 'POST')
+        {
+            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
+        }
+        else
+        {
+
+        }
+        $res=$this.Request($data)
+
+        return $res
+    }
+
+    <#############################################################
+
+    #############################################################>
+    [Hashtable] GetVersion([Hashtable]$Arguments)
+    {
+        #GET https://api.t.mrovo.ru/api/hs/er/v1/info
+        $res=$this.Request(@{
+            'Method'=$this.MethodREST
+            'Uri'="$($this.BaseUri)/version"
             'Body'="{'ext':'1'}"
         })
         return $res
     }
 
-    static [Hashtable] GetDomains([Hashtable]$Arguments)
-    {
-        $res=[avvDNSClinic]::Request(@{
-            'Method'='Get'
-            'Headers'=@{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"}
-            'Uri'="https://api.selectel.ru/domains/v1/"
-        })
-        return $res
-    }
-
-    static [Hashtable] GetRecords([Hashtable]$Arguments)
-    {
-        $res=[avvDNSClinic]::Request(@{
-            'Method'='Get'
-            'Headers'=@{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"}
-            'Uri'="https://api.selectel.ru/domains/v1/$( $Arguments.domain )/records"
-        })
-        return $res
-    }
 }
