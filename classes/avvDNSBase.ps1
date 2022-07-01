@@ -233,8 +233,13 @@ class avvDNSBase{
                 try
                 {
                     # вызвать функцию-член класса реализующую функционал метода
-                    $ComPart1="[$($ClassNameProvider)]::"+"$($ImplMethod)("+'$($this.params)'+")"
+                    ### это со статическим методом
+                    ### $ComPart1="[$($ClassNameProvider)]::"+"$($ImplMethod)("+'$($this.params)'+")"
+                    ### это с обычным методом
+                    $ComPart1='$classProvider.' + "$($ImplMethod)("+'$($this.params)'+")"
+                    #$ComPart1='$classProvider.' + "$($ImplMethod)_("+'$($this.params)'+")" # TEST-EXCEPTION
                     #$ComPart1 = '[avvDNSSelectel]' + $ComPart1 # TEST-EXCEPTION
+                    #$ComPart1="MethodIsImplemented1('$( $Method )')" # TEST_ECEPTION
                     $res = Invoke-Expression -Command $ComPart1
                     #$result.compute.add('ExecImplMethod', $res)
                     $result.error=$res.Error
