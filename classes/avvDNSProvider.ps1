@@ -4,7 +4,13 @@ class avvDNSProvider
         'domainsList'='GetDomains'
         'recordsList'='GetRecords'
     }
-
+    [String]$BaseUri=''
+    <#
+    [Hashtable]hidden $Methods=@{
+        'domainsList'=@{'method'='GetDomains'; 'uri'=''}
+        'recordsList'=@{'method'='GetRecords'; 'uri'=''}
+    }
+    #>
     [array] GetMethods()
     {
         return $this.Methods
