@@ -1,4 +1,4 @@
-#using module 'C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1';
+using module 'C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1';
 
 [CmdletBinding(DefaultParameterSetName='GroupToken')]
 Param (
@@ -16,8 +16,10 @@ Param (
     [string] $Token=''
 )
 
+### 1 из двух следующих строк, в зависимости от расположения файлов, используется,
+### если не ингсталирован модуль avvClasses
 #. "C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1"
-. "D:\tools\PSModules\avvClasses\classes\classCFG.ps1"
+#. "D:\tools\PSModules\avvClasses\classes\classCFG.ps1"
 <# классы для работы с DNS #>
 . ".\classes\avvDNSBase.ps1"
 
