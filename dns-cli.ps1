@@ -1,4 +1,4 @@
-using module 'C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1';
+#using module 'C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1';
 
 [CmdletBinding(DefaultParameterSetName='GroupToken')]
 Param (
@@ -16,13 +16,6 @@ Param (
     [string] $Token=''
 )
 
-### 1 из двух следующих строк, в зависимости от расположения файлов, используется,
-### если не ингсталирован модуль avvClasses
-#. "C:\Program Files\WindowsPowerShell\Modules\avvClasses\classes\classCFG.ps1"
-#. "D:\tools\PSModules\avvClasses\classes\classCFG.ps1"
-<# классы для работы с DNS #>
-. ".\classes\avvDNSBase.ps1"
-
 function Param2Splah {
     $result = [ordered]@{
         action = $Action;
@@ -38,6 +31,53 @@ function Param2Splah {
     return $result
 }
 
+$isImportClasses = $false
+try
+{
+    # попытка импорта модуля avvClasses
+    Write-Host "Пробуем импорт модуля avvClasses."
+    Import-Module -Name 'avvClasses' -Force -ErrorAction Stop
+    $isImportClasses = $True
+} catch {
+    #Write-Host $PSItem
+    Write-Host "Нет модуля avvClasses для импорта. Попробуем including файлов."
+    $isImportClasses = $false
+}
+
+if (!$isImportClasses) {
+    try
+    {
+        ### Подключение файлов с классами ############################################
+        Write-Host "Пробуем including файлов."
+        # class IniCFG
+        $fileClass='classCFG.ps1'
+        $pathModule="$Env:AVVPATHCLASSES"
+        if (!(Test-Path -Path "$($pathModule)\$($fileClass)"))
+        {
+            $pathModule="$Env:ProgramFiles"
+        }
+        if (!(Test-Path -Path "$($pathModule)\$($fileClass)"))
+        {
+            throw "Нет требуемых файлов $($fileClass)"
+        }
+        $fileClass="$($pathModule)\$($fileClass)"
+        # including file
+        . "$fileClass"
+
+        $isIncludeClassCFG=$true
+    }
+    catch
+    {
+        Write-Host "Не получился including файлов. Прервать выполнения скрипта."
+        $isIncludeClassCFG=$false
+        throw
+    }
+} ### if (!$isImportClasses) {
+
+<# Подключаем классы для работы с DNS из текущего каталога запуска .\classes #>
+. ".\classes\avvDNSBase.ps1"
+
+
 $Debug = ($PSBoundParameters.Debug -eq $True)
 
 Write-Host "================================================"
@@ -47,12 +87,24 @@ $fileIni="$($psCommandPath).ini"
 
 if ($Debug)
 {
-    $global:ini=[IniCFG]::new($fileIni)
+    if ($isImportClasses) {
+        $global:ini = Get-IniCFG -Filename "$($fileIni)"
+    }
+    elseif ($isIncludeClassCFG)
+    {
+        $global:ini = [IniCFG]::new($fileIni)
+    }
     $global:par=Param2Splah
     $global:dnsWorker=[avvDNSBase]::new($par)
 } else
 {
-    $ini=[IniCFG]::new($fileIni)
+    if ($isImportClasses) {
+        $ini = Get-IniCFG -Filename "$($fileIni)"
+    }
+    elseif ($isIncludeClassCFG)
+    {
+        $ini = [IniCFG]::new($fileIni)
+    }
     $par=Param2Splah
     $dnsWorker=[avvDNSBase]::new($par)
 }
