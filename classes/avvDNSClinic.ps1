@@ -130,11 +130,29 @@ class avvDNSClinic : avvDNSProvider
     [Hashtable] GetVersion([Hashtable]$Arguments)
     {
         #GET https://api.t.mrovo.ru/api/hs/er/v1/info
-        $res=$this.Request(@{
+        $data=@{
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/version"
-            'Body'="{'ext':'1'}"
-        })
+        }
+        if ($this.MethodREST.toUpper() -eq 'GET')
+        {
+            if ( $Arguments.extParams.extVersion -and $Arguments.extParams.extVersion -ne '0')
+            {
+                $data.Uri += "?ext=$( $Arguments.extParams.extVersion )"
+            }
+        }
+        elseif ($this.MethodREST.toUpper() -eq 'POST')
+        {
+            if ( $Arguments.extParams.extVersion -and $Arguments.extParams.extVersion -ne '0')
+            {
+                $data.Add('Body', "{'ext':'$( $Arguments.extParams.extVersion )'}")
+            }
+        }
+        else
+        {
+
+        }
+        $res=$this.Request($data)
         return $res
     }
 
