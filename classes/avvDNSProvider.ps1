@@ -5,12 +5,20 @@ class avvDNSProvider
         'recordsList'='GetRecords'
     }
     [String]$BaseUri=''
+    [bool]$IsInit=$False
+    [Hashtable]$extParams=@{}
     <#
     [Hashtable]hidden $Methods=@{
         'domainsList'=@{'method'='GetDomains'; 'uri'=''}
         'recordsList'=@{'method'='GetRecords'; 'uri'=''}
     }
     #>
+
+    #avvDNSProvider
+    [void] Init([Hashtable]$Params)
+    {
+        $this.extParams = $Params;
+    }
 
     [array] GetMethods()
     {
@@ -31,6 +39,66 @@ class avvDNSProvider
             if (!($res)) { $res=$Method }
         }
         return $res
+    }
+
+    [Hashtable] PrepareParams([Hashtable]$Data, [String[]]$DesiredParams2Uri, [String[]]$DesiredParams2Body,
+                              [String[]]$DesiredParams, [String]$TypeRequest)
+    {
+        $result=@{
+            uri=''
+            body=''
+        }
+        $DesiredParams2Uri.foreach({
+            if ($Data.Contains($_))
+            {
+                $result.uri += $Data[$_] + '/'
+            }
+        })
+        if ($result.uri.Length -gt 0)
+        {
+            $result.uri = $result.uri.Substring(0, $result.uri.Length-1)
+        }
+        $DesiredParams2Body.foreach({
+            if ($Data.Contains($_))
+            {
+                $result.body += ("'$_':'$($Data[$_])';")
+            }
+        })
+        if ($result.body.Length -gt 0)
+        {
+            $result.body = $result.body.Substring(0, $result.body.Length-1)
+        }
+
+        if ($TypeRequest.ToUpper() -eq 'GET')
+        {
+            $res = ''
+            $DesiredParams.foreach({
+                if ($Data.Contains($_))
+                {
+                    $res += "$($_)=$($Data[$_])" + '&'
+                }
+            })
+            if ($res.Length -gt 0)
+            {
+                $res = '?' + $res.Substring(0, $res.Length-1)
+            }
+            $result.uri += $res
+        }
+        elseif ($TypeRequest.ToUpper() -eq 'POST')
+        {
+            $DesiredParams.foreach({
+                if ($Data.Contains($_))
+                {
+                    $result.body += ("'$_':'$Data[$_]'")
+                }
+            })
+        }
+        if ($result.body.Length -gt 0)
+        {
+            $result.body = '{' + $result.body + '}'
+        }
+
+        return $result
     }
 
     #[Microsoft.PowerShell.Commands.WebResponseObject] Request([Hashtable]$Data)

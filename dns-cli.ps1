@@ -27,7 +27,11 @@ function Param2Splah {
         debug = $Debug;
         extParams = $ExtParams;
     }
-    $result.extParams.token1c=$ini.GetString('dns_cli', 'Token1c');
+    $ini.CFG['dns_cli'].Keys.foreach({
+        if ( ! $result.extParams.Contains($_) ){
+            $result.extParams[$_]=$ini.GetString('dns_cli', $_);
+        }
+    })
     #$result.extParams.token1c=$ini.GetString('dns_cli', 'Token1c');
     return $result
 }

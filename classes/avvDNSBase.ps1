@@ -131,6 +131,7 @@ class avvDNSBase{
                     #$ClassProvider=New-Object -TypeName $ClassNameProvider -ArgumentList $this.params;
                     # $ClassNameProvider+="1" # TEST-EXCEPTION
                     $ClassProvider = New-Object -TypeName $ClassNameProvider;
+                    $ClassProvider.Init($this.Params.extParams);
                     $result.compute.add('classProvider_methods', $ClassProvider.Methods)
                 }
                 catch
