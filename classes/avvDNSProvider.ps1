@@ -7,6 +7,7 @@ class avvDNSProvider
     [String]$BaseUri=''
     [bool]$IsInit=$False
     [Hashtable]$extParams=@{}
+    [Hashtable]$PreparedUri=@{}
     <#
     [Hashtable]hidden $Methods=@{
         'domainsList'=@{'method'='GetDomains'; 'uri'=''}
@@ -64,11 +65,6 @@ class avvDNSProvider
                 $result.body += ("'$_':'$($Data[$_])';")
             }
         })
-        if ($result.body.Length -gt 0)
-        {
-            $result.body = $result.body.Substring(0, $result.body.Length-1)
-        }
-
         if ($TypeRequest.ToUpper() -eq 'GET')
         {
             $res = ''
@@ -89,15 +85,16 @@ class avvDNSProvider
             $DesiredParams.foreach({
                 if ($Data.Contains($_))
                 {
-                    $result.body += ("'$_':'$Data[$_]'")
+                    $result.body += "'$_':'" + $Data[$_] + "';";
                 }
             })
         }
         if ($result.body.Length -gt 0)
         {
+            $result.body = $result.body.Substring(0, $result.body.Length-1)
             $result.body = '{' + $result.body + '}'
         }
-
+        $this.PreparedUri = $result;
         return $result
     }
 
