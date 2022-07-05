@@ -69,17 +69,12 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/companies"
         }
-        if ($this.MethodREST.toUpper() -eq 'GET')
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data.Uri += '/' + $data4Uri.uri
+        if ($this.Version -eq 2)
         {
-            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
-        }
-        elseif ($this.MethodREST.toUpper() -eq 'POST')
-        {
-            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
-        }
-        else
-        {
-
+            # POST
+            $Data.Body = $data4Uri.Body;
         }
         $res=$this.Request($data)
 
@@ -96,17 +91,12 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/clinics"
         }
-        if ($this.MethodREST.toUpper() -eq 'GET')
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data.Uri += '/' + $data4Uri.uri
+        if ($this.Version -eq 2)
         {
-            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
-        }
-        elseif ($this.MethodREST.toUpper() -eq 'POST')
-        {
-            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
-        }
-        else
-        {
-
+            # POST
+            $Data.Body = $data4Uri.Body;
         }
         $res=$this.Request($data)
 
@@ -123,24 +113,15 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/doctors"
         }
-        <#
-        if ($this.MethodREST.toUpper() -eq 'GET')
+        #$data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri','ClinicVersion'), @('ExtUri','access_token','p2'), @('access_token','ExtUri','p1'), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data.Uri += '/' + $data4Uri.uri
+        if ($this.Version -eq 2)
         {
-            $data.Uri+="?access_token=$($Arguments.extParams.Token1c)"
+            # POST
+            $Data.Body = $data4Uri.Body;
         }
-        elseif ($this.MethodREST.toUpper() -eq 'POST')
-        {
-            $data.Add('Body', "{'access_token':'$($Arguments.extParams.Token1c)'}")
-        }
-        else
-        {
-
-        }
-        #>
-
-        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('extUri'), @(), @('access_token'), $data.Method)).uri
-
-        $res=$this.Request($data)
+        $res=$this.Request($data);
 
         return $res
     }
@@ -155,7 +136,7 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/version"
         }
-        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('extVersion'), @(), @(), $data.Method)).uri
+        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('ExtVersion'), @(), @(), $data.Method)).uri
         $res=$this.Request($data)
         return $res
     }
