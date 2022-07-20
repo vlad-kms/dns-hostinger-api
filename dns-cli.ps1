@@ -4,6 +4,7 @@
 Param (
     [Parameter(ValueFromPipeline=$True, Position=0)]
     [string] $Action='getDomains',
+    [string] $FileIni='',
     #[ValidateSet('selectel', 'mydns')]
     $Provider='selectel',
     [string] $Domain='mrovo.ru',
@@ -87,8 +88,11 @@ $Debug = ($PSBoundParameters.Debug -eq $True)
 
 Write-Host "================================================"
 #$PSBoundParameters
-$ps = Split-Path $psCommandPath -Parent
-$fileIni="$($psCommandPath).ini"
+if (!$FileIni)
+{
+    $ps = Split-Path $psCommandPath -Parent
+    $FileIni = "$( $psCommandPath ).ini"
+}
 
 if ($Debug)
 {
