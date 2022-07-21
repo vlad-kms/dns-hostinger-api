@@ -26,6 +26,7 @@ class avvDNSSelectel : avvDNSProvider
             $result = ($arrC|Sort-Object -Property name|Format-Table)
 
             $res.add('raw', $raw)
+            $res.add('resarr', $arrC)
             $res.add('result', $result)
             if ($raw.StatusCode -ne 200)
             {
@@ -53,6 +54,7 @@ class avvDNSSelectel : avvDNSProvider
             $result = ($arrC|Sort-Object -Property name|Format-Table)
 
             $res.add('raw', $raw)
+            $res.add('resarr', $arrC)
             $res.add('result', $result)
             if ($raw.StatusCode -ne 200)
             {
