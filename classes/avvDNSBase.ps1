@@ -85,7 +85,8 @@ class avvDNSBase{
         "20"
         "Исключение при вызове REST API провайдера"
         "Ошибка возврата из REST API http request"
-        "23"
+        "Ошибка при удалении ресурсной записи DNS"
+        "24"
         )
         $result = @{
             status=0
