@@ -45,6 +45,7 @@ class avvDNSSelectel : avvDNSProvider
 
     [Hashtable] GetRecords([Hashtable]$Arguments)
     {
+        <##
         $res=@{
             'Error'=(New-Object PSObject)
             'ErrorCode'=0
@@ -53,7 +54,7 @@ class avvDNSSelectel : avvDNSProvider
         {
             if ($this.extParams.Contains('domain'))
             {
-                $domainName = $this.extParams.domain;
+                $domainName = $Arguments.extParams.domain;
             }
             else
             {
@@ -66,6 +67,9 @@ class avvDNSSelectel : avvDNSProvider
             $res.add('raw', $raw)
             $res.add('resarr', $arrC)
             $res.add('result', $result)
+
+            #$res.add('this', $this);
+            #$res.add('Arguments', $Arguments);
             if ($raw.StatusCode -ne 200)
             {
                 $res.ErrorCode=22 # StatusCode из ответа на http запроса <> 200
@@ -77,6 +81,43 @@ class avvDNSSelectel : avvDNSProvider
             $res.Error=$PSItem
         }
         return $res
+        ##>
+        <##>
+        if ($Arguments.extParams.Contains('domain'))
+        {
+            $domainName = $Arguments.extParams.domain;
+        }
+        else
+        {
+            $domainName = $Arguments.domain;
+        }
+        $data=@{
+            'Method' = 'Get'
+            'Uri' = "$($this.BaseUri)/$($domainName)/records"
+            'Headers' = @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' }
+        }
+        $extUri = '';
+        if ($Arguments.extParams.Contains('recordId')) {
+            $extUri += '/' + $Arguments.extParams.recordId;
+        }
+        $data.Uri += $extUri;
+        $res=$this.Request($data);
+
+        $arrC = ConvertFrom-Json $res.raw.content;
+        $result = ($arrC|Sort-Object -Property name|Format-Table);
+
+        #$res.add('raw', $raw)
+        $res.add('resarr', $arrC);
+        $res.add('result', $result);
+
+        #$res.add('this', $this);
+        #$res.add('Arguments', $Arguments);
+        if ($res.raw.StatusCode -ne 200)
+        {
+            $res.ErrorCode=22; # StatusCode из ответа на http запроса <> 200
+        }
+        return $res
+        ##>
     }
 
     [Hashtable] DeleteRecord([Hashtable]$Arguments)
