@@ -109,7 +109,9 @@ class avvDNSProvider
         $raw=@{}
         try
         {
-            $res.add('data', $data);
+            if ($this.extParams.Contains('classDebug') -and $this.extParams.classDebug){
+                $res.add('data', $data);
+            }
 
             $raw = Invoke-WebRequest @Data
 
