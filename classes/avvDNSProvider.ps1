@@ -109,6 +109,8 @@ class avvDNSProvider
         $raw=@{}
         try
         {
+            $res.add('data', $data);
+
             $raw = Invoke-WebRequest @Data
 
             $res.add('raw', $raw)
