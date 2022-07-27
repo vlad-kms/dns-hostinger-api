@@ -18,6 +18,7 @@ class avvDNSSelectel : avvDNSProvider
 
     [Hashtable] GetDomains([Hashtable]$Arguments)
     {
+        <#
         $res=@{
             'Error'=(New-Object PSObject)
             'ErrorCode'=0
@@ -40,6 +41,40 @@ class avvDNSSelectel : avvDNSProvider
             $res.ErrorCode=21 # Exception http запроса
             $res.Error=$PSItem
         }
+        #>
+        if ($Arguments.extParams.Contains('domainId'))
+        {
+            $domainName = $Arguments.extParams.domainId;
+        }
+        else
+        {
+            $domainName='';
+        }
+        if ($domainName) {
+            $domainName = '/' + $domainName;
+        }
+        $data=@{
+            'Method' = 'Get'
+            'Uri' = "$($this.BaseUri)$($domainName)"
+            'Headers' = @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' }
+        }
+        $res=$this.Request($data);
+
+        $arrC = ConvertFrom-Json $res.raw.content;
+        $result = ($arrC|Sort-Object -Property name|Format-Table);
+        $res.add('resarr', $arrC);
+        $res.add('result', $result);
+        if ($this.extParams.Contains('classDebug') -and $this.extParams.classDebug )
+        {
+            $res.add('this', $this);
+            $res.add('Arguments', $Arguments);
+        }
+        if ($res.raw.StatusCode -ne 200)
+        {
+            $res.ErrorCode=22; # StatusCode из ответа на http запроса <> 200
+        }
+
+
         return $res
     }
 
@@ -109,9 +144,11 @@ class avvDNSSelectel : avvDNSProvider
         #$res.add('raw', $raw)
         $res.add('resarr', $arrC);
         $res.add('result', $result);
-
-        #$res.add('this', $this);
-        #$res.add('Arguments', $Arguments);
+        if ($this.extParams.Contains('classDebug') -and $this.extParams.classDebug )
+        {
+            $res.add('this', $this);
+            $res.add('Arguments', $Arguments);
+        }
         if ($res.raw.StatusCode -ne 200)
         {
             $res.ErrorCode=22; # StatusCode из ответа на http запроса <> 200

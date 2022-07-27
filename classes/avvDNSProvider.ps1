@@ -49,6 +49,9 @@ class avvDNSProvider
             uri=''
             body=''
         }
+        return $result;
+
+
         $DesiredParams2Uri.foreach({
             if ($Data.Contains($_))
             {
