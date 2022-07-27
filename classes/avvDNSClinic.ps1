@@ -32,6 +32,63 @@ class avvDNSClinic : avvDNSProvider
         $this.BaseUri="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v$($value)"
         $this.MethodREST=(Invoke-Expression -Command "if ($($Value) -eq 1) {'Get'} elseif ($($value) -eq 2) {'Post'} else {''}" )
     }
+
+    [Hashtable] PrepareParams([Hashtable]$Data, [String[]]$DesiredParams2Uri, [String[]]$DesiredParams2Body,
+                              [String[]]$DesiredParams, [String]$TypeRequest)
+    {
+        $result=@{
+            uri=''
+            body=''
+        }
+        $DesiredParams2Uri.foreach({
+            if ($Data.Contains($_))
+            {
+                $result.uri += $Data[$_] + '/'
+            }
+        })
+        if ($result.uri.Length -gt 0)
+        {
+            $result.uri = $result.uri.Substring(0, $result.uri.Length-1)
+        }
+        $DesiredParams2Body.foreach({
+            if ($Data.Contains($_))
+            {
+                $result.body += ("'$_':'$($Data[$_])';")
+            }
+        })
+        if ($TypeRequest.ToUpper() -eq 'GET')
+        {
+            $res = ''
+            $DesiredParams.foreach({
+                if ($Data.Contains($_))
+                {
+                    $res += "$($_)=$($Data[$_])" + '&'
+                }
+            })
+            if ($res.Length -gt 0)
+            {
+                $res = '?' + $res.Substring(0, $res.Length-1)
+            }
+            $result.uri += $res
+        }
+        elseif ($TypeRequest.ToUpper() -eq 'POST')
+        {
+            $DesiredParams.foreach({
+                if ($Data.Contains($_))
+                {
+                    $result.body += "'$_':'" + $Data[$_] + "';";
+                }
+            })
+        }
+        if ($result.body.Length -gt 0)
+        {
+            $result.body = $result.body.Substring(0, $result.body.Length-1)
+            $result.body = '{' + $result.body + '}'
+        }
+        $this.PreparedUri = $result;
+        return $result
+    }
+
     #static [Microsoft.PowerShell.Commands.WebResponseObject] Request([Hashtable]$Data)
     [Hashtable] Request([Hashtable]$Data)
     {
