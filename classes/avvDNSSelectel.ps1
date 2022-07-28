@@ -18,50 +18,22 @@ class avvDNSSelectel : avvDNSProvider
 
     [Hashtable] GetDomains([Hashtable]$Arguments)
     {
-        <#
-        $res=@{
-            'Error'=(New-Object PSObject)
-            'ErrorCode'=0
-        }
-        try{
-            $raw=Invoke-WebRequest -Method Get -Headers @{"X-Token"="$($Arguments.token)";"Content-Type"="application/json"} "$($this.BaseUri)";
-            $arrC=ConvertFrom-Json $raw.content;
-            $result = ($arrC|Sort-Object -Property name|Format-Table)
+        $data = $this.PrepareParams($Arguments.extParams, @('domainId', 'export'), @(), @(), '', @(), 'Get');
+        $data.Uri = "$($this.BaseUri)$($data.Uri)";
+        $data.Headers += @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' };
+        $res = $this.Request($data);
 
-            $res.add('raw', $raw)
-            $res.add('resarr', $arrC)
-            $res.add('result', $result)
-            if ($raw.StatusCode -ne 200)
-            {
-                $res.ErrorCode=22 # StatusCode из ответа на http запроса <> 200
-            }
-        }
-        catch
+        if (!$Arguments.extParams.Contains('export'))
         {
-            $res.ErrorCode=21 # Exception http запроса
-            $res.Error=$PSItem
-        }
-        #>
-        if ($Arguments.extParams.Contains('domainId'))
-        {
-            $domainName = $Arguments.extParams.domainId;
+            $arrC = ConvertFrom-Json $res.raw.content;
+            $result = ($arrC|Sort-Object -Property name|Format-Table);
         }
         else
         {
-            $domainName='';
+            # результат - зона в формате BIND (string с разделителями `n (перенос строк))
+            $arrC = $res.raw.content.split("`n");
+            $result = $arrC.getEnumerator() | Sort-Object;
         }
-        if ($domainName) {
-            $domainName = '/' + $domainName;
-        }
-        $data=@{
-            'Method' = 'Get'
-            'Uri' = "$($this.BaseUri)$($domainName)"
-            'Headers' = @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' }
-        }
-        $res=$this.Request($data);
-
-        $arrC = ConvertFrom-Json $res.raw.content;
-        $result = ($arrC|Sort-Object -Property name|Format-Table);
         $res.add('resarr', $arrC);
         $res.add('result', $result);
         if ($this.extParams.Contains('classDebug') -and $this.extParams.classDebug )
@@ -74,50 +46,12 @@ class avvDNSSelectel : avvDNSProvider
             $res.ErrorCode=22; # StatusCode из ответа на http запроса <> 200
         }
 
-
         return $res
     }
 
     [Hashtable] GetRecords([Hashtable]$Arguments)
     {
-        <##
-        $res=@{
-            'Error'=(New-Object PSObject)
-            'ErrorCode'=0
-        }
-        try
-        {
-            if ($this.extParams.Contains('domain'))
-            {
-                $domainName = $Arguments.extParams.domain;
-            }
-            else
-            {
-                $domainName = $Arguments.domain;
-            }
-            $raw = Invoke-WebRequest -Method Get -Headers @{ 'X-Token' = "$( $Arguments.token )"; 'Content-Type' = 'application/json' } "$($this.BaseUri)/$($domainName)/records";
-            $arrC = ConvertFrom-Json $raw.content;
-            $result = ($arrC|Sort-Object -Property name|Format-Table)
-
-            $res.add('raw', $raw)
-            $res.add('resarr', $arrC)
-            $res.add('result', $result)
-
-            #$res.add('this', $this);
-            #$res.add('Arguments', $Arguments);
-            if ($raw.StatusCode -ne 200)
-            {
-                $res.ErrorCode=22 # StatusCode из ответа на http запроса <> 200
-            }
-        }
-        catch
-        {
-            $res.ErrorCode=21 # Exception http запроса
-            $res.Error=$PSItem
-        }
-        return $res
-        ##>
-        <##>
+        <#
         if ($Arguments.extParams.Contains('domain'))
         {
             $domainName = $Arguments.extParams.domain;
@@ -126,16 +60,15 @@ class avvDNSSelectel : avvDNSProvider
         {
             $domainName = $Arguments.domain;
         }
-        $data=@{
-            'Method' = 'Get'
-            'Uri' = "$($this.BaseUri)/$($domainName)/records"
-            'Headers' = @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' }
+        if ($Arguments.extParams.Contains('domainId'))
+        {
+            $domainName = $Arguments.extParams.domainId;
         }
-        $extUri = '';
-        if ($Arguments.extParams.Contains('recordId')) {
-            $extUri += '/' + $Arguments.extParams.recordId;
-        }
-        $data.Uri += $extUri;
+        #>
+        $Arguments.extParams.add('records', 'records');
+        $data = $this.PrepareParams($Arguments.extParams, @('domainId', 'records', 'recordId'), @(), @(), '', @(), 'Get');
+        $data.Uri = "$($this.BaseUri)$($data.Uri)";
+        $data.Headers += @{ 'X-Token' = "$($Arguments.token)"; 'Content-Type' = 'application/json' };
         $res=$this.Request($data);
 
         $arrC = ConvertFrom-Json $res.raw.content;
@@ -154,7 +87,6 @@ class avvDNSSelectel : avvDNSProvider
             $res.ErrorCode=22; # StatusCode из ответа на http запроса <> 200
         }
         return $res
-        ##>
     }
 
     [Hashtable] DeleteRecord([Hashtable]$Arguments)
@@ -165,13 +97,17 @@ class avvDNSSelectel : avvDNSProvider
         }
         try
         {
-            if ($this.extParams.Contains('domain'))
+            if ($Arguments.extParams.Contains('domain'))
             {
-                $domainId = $this.extParams.domain;
+                $domainId = $Arguments.extParams.domain;
             }
             else
             {
                 $domainId = $Arguments.domain;
+            }
+            if ($Arguments.extParams.Contains('domainId'))
+            {
+                $domainId = $Arguments.extParams.domainId;
             }
             if ($this.extParams.Contains('recordId'))
             {
