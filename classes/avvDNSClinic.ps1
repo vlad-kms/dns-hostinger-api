@@ -34,7 +34,7 @@ class avvDNSClinic : avvDNSProvider
     }
 
     [Hashtable] PrepareParams([Hashtable]$Data, [String[]]$DesiredParams2Uri, [String[]]$DesiredParams2Body,
-                              [String[]]$DesiredParams, [String]$TypeRequest)
+                              [String[]]$DesiredParams, [String]$TypeRequest, [String[]]$DesiredHeaders, [String]$Method)
     {
         $result=@{
             uri=''

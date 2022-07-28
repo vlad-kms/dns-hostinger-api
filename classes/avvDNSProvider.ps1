@@ -43,61 +43,37 @@ class avvDNSProvider
     }
 
     [Hashtable] PrepareParams([Hashtable]$Data, [String[]]$DesiredParams2Uri, [String[]]$DesiredParams2Body,
-                              [String[]]$DesiredParams, [String]$TypeRequest)
+                              [String[]]$DesiredParams, [String]$TypeRequest, [String[]]$DesiredHeaders, [String]$Method)
     {
         $result=@{
             uri=''
             body=''
+            Headers=@{}
+            Method=$Method
         }
-        return $result;
-
-
+        ## подготовка uri
         $DesiredParams2Uri.foreach({
             if ($Data.Contains($_))
             {
-                $result.uri += $Data[$_] + '/'
+                $result.uri += '/' + [string]$Data[$_]
             }
         })
-        if ($result.uri.Length -gt 0)
-        {
-            $result.uri = $result.uri.Substring(0, $result.uri.Length-1)
-        }
+        ## подготовка тела запроса
         $DesiredParams2Body.foreach({
             if ($Data.Contains($_))
             {
                 $result.body += ("'$_':'$($Data[$_])';")
             }
         })
-        if ($TypeRequest.ToUpper() -eq 'GET')
-        {
-            $res = ''
-            $DesiredParams.foreach({
-                if ($Data.Contains($_))
-                {
-                    $res += "$($_)=$($Data[$_])" + '&'
-                }
-            })
-            if ($res.Length -gt 0)
+        ## подготовка Headers
+        $DesiredHeaders.foreach({
+            if ( $Data.Contains($_))
             {
-                $res = '?' + $res.Substring(0, $res.Length-1)
+                $result.Headers.add($_,$Data[$_]);
             }
-            $result.uri += $res
-        }
-        elseif ($TypeRequest.ToUpper() -eq 'POST')
-        {
-            $DesiredParams.foreach({
-                if ($Data.Contains($_))
-                {
-                    $result.body += "'$_':'" + $Data[$_] + "';";
-                }
-            })
-        }
-        if ($result.body.Length -gt 0)
-        {
-            $result.body = $result.body.Substring(0, $result.body.Length-1)
-            $result.body = '{' + $result.body + '}'
-        }
+        })
         $this.PreparedUri = $result;
+        if (!$result.body) { $result.Remove('body'); }
         return $result
     }
 
