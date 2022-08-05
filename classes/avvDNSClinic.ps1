@@ -126,7 +126,7 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/companies"
         }
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -148,7 +148,7 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/clinics"
         }
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -171,7 +171,7 @@ class avvDNSClinic : avvDNSProvider
             'Uri'="$($this.BaseUri)/doctors"
         }
         #$data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri','ClinicVersion'), @('ExtUri','access_token','p2'), @('access_token','ExtUri','p1'), $data.Method);
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -193,7 +193,7 @@ class avvDNSClinic : avvDNSProvider
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/version"
         }
-        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('ExtVersion'), @(), @(), $data.Method)).uri
+        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('ExtVersion'), @(), @(), '', @(), $data.Method)).uri
         $res=$this.Request($data)
         return $res
     }
