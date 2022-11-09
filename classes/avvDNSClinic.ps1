@@ -14,7 +14,9 @@ class avvDNSClinic : avvDNSProvider
         'doctors'='GetDoctors'
     }
     [int]hidden $Version=1
-    [String]$BaseUri="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v$($this.Version)"
+    #[String]$BaseUri="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v$($this.Version)"
+    [String]$ServiceUri="https://dbg.alt.av-kms.ru/hs/er"
+    [String]$BaseUri="$($this.ServiceUri)/v$($this.Version)"
     [String]$MethodREST=(Invoke-Expression -Command "if ($($this.Version) -eq 1) {'Get'} elseif ($($this.Version) -eq 2) {'Post'} else {''}" )
 
     [void] Init([Hashtable]$Params)
@@ -24,13 +26,24 @@ class avvDNSClinic : avvDNSProvider
         {
             $this.SetVersion($Params['ClinicVersion']);
         }
+        if ($Params.Contains('ServiceUri'))
+        {
+            $this.ServiceUri = $Params['ServiceUri'];
+            $this.BaseUri="$($this.ServiceUri)/v$($this.Version)"
+        }
     }
 
     [void] SetVersion([int]$value)
     {
         $this.Version = $value
-        $this.BaseUri="https://dbg.alt.av-kms.ru/api_dbg/hs/er/v$($value)"
+        $this.BaseUri="$($this.ServiceUri)/v$($value)"
         $this.MethodREST=(Invoke-Expression -Command "if ($($Value) -eq 1) {'Get'} elseif ($($value) -eq 2) {'Post'} else {''}" )
+    }
+
+    [array] GetDesiredHeaders()
+    {
+        $res = @('AccessToken');
+        return $res;
     }
 
     [Hashtable] PrepareParams([Hashtable]$Data, [String[]]$DesiredParams2Uri, [String[]]$DesiredParams2Body,
@@ -125,8 +138,9 @@ class avvDNSClinic : avvDNSProvider
         $data=@{
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/companies"
+            'Headers' = $this.extParams.Headers
         }
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $this.MethodREST, @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -147,8 +161,9 @@ class avvDNSClinic : avvDNSProvider
         $data=@{
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/clinics"
+            'Headers' = $this.extParams.Headers
         }
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $this.MethodREST, @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -169,9 +184,10 @@ class avvDNSClinic : avvDNSProvider
         $data=@{
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/doctors"
+            'Headers' = $this.extParams.Headers
         }
         #$data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri','ClinicVersion'), @('ExtUri','access_token','p2'), @('access_token','ExtUri','p1'), $data.Method);
-        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), '', @(), $data.Method);
+        $data4Uri = $this.PrepareParams($Arguments.extParams, @('ExtUri'), @(), @('access_token'), $this.MethodREST, @(), $data.Method);
         $data.Uri += '/' + $data4Uri.uri
         if ($this.Version -eq 2)
         {
@@ -192,8 +208,9 @@ class avvDNSClinic : avvDNSProvider
         $data=@{
             'Method'=$this.MethodREST
             'Uri'="$($this.BaseUri)/version"
+            'Headers' = $this.extParams.Headers
         }
-        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('ExtVersion'), @(), @(), '', @(), $data.Method)).uri
+        $data.Uri += '/' + ($this.PrepareParams($Arguments.extParams, @('ExtVersion'), @(), @(), $this.MethodREST, @(), $data.Method)).uri
         $res=$this.Request($data)
         return $res
     }
