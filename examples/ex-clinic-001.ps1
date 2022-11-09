@@ -1,0 +1,1 @@
+$q=.\dns-cli.ps1 -Debug -Action 'clinics' -ExtParams @{'ExtVersion'='ext';'ClinicVersion'='1';'_extUri'='42121375-91d3-11e7-8941-680715c60d7/doctors';'ServiceUri'='https://api.alt.av-kms.ru/hs/er';'Headers'=@{'AccessToken'="789"};} -Provider 'clinic' -FileIni E:\projects\my-configs\src\dns-hostinger\dns-cli.ps1.ini ;$q.result;$q.response;$q
